@@ -12,9 +12,10 @@ pages = [home,
 SETTINGS_INDEX = len(pages) - 1
 
 def main(page: ft.Page):
+
     builds = [p.build() for p in pages]
 
-    body = ft.Container(content=builds[0], expand=True)
+    body = ft.Container(content=builds[SETTINGS_INDEX], expand=True)
 
     def change_page(event: ft.ControlEvent):
         selected = event.control.selected_index
@@ -23,7 +24,7 @@ def main(page: ft.Page):
         if selected != SETTINGS_INDEX:
             settings_button.selected = False
             settings_button.bgcolor = None
-            
+
         page.update()
 
     def open_settings():
