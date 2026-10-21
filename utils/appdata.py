@@ -36,4 +36,4 @@ class SettingsClass():
         attributes = vars(self)
         config_file.write_text(json.dumps(attributes, indent=2))
 
-Settings = SettingsClass.load()
+Settings = SettingsClass().load()

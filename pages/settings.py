@@ -1,5 +1,5 @@
 import flet as ft
-
+from utils.appdata import Settings
 
 def setting_group(title: str, settings: list[ft.ListTile]) -> ft.Control:
     return ft.Column(
@@ -20,18 +20,22 @@ def build() -> ft.Control:
         path = await ft.FilePicker().get_directory_path()
         if path:
             mf_path.content = path
+            Settings.music_dir = path
 
     def toggle_mode(event: ft.Event[ft.Switch]):
         page: ft.Page = event.control.page
 
         if event.control.value:
             page.theme_mode = ft.ThemeMode.DARK
+            Settings.dark_mode = True
+
         else:
             page.theme_mode = ft.ThemeMode.LIGHT
+            Settings.dark_mode = False
 
         page.update()
 
-    mf_path = ft.TextButton(icon=ft.Icons.FOLDER, content='/akunas/abc/efg/xyz/idk', on_click=pick_mf)
+    mf_path = ft.TextButton(icon=ft.Icons.FOLDER, content=Settings.music_dir, on_click=pick_mf)
 
     return ft.Container(
         padding=16,
@@ -46,11 +50,12 @@ def build() -> ft.Control:
             ft.Column(
                 spacing=16,
                 controls=[
+
                     setting_group(title='Appearance', settings=[
                         ft.ListTile(
                             title='Dark Mode',
                             leading=ft.Icons.DARK_MODE,
-                            trailing=ft.Switch(on_change=toggle_mode)
+                            trailing=ft.Switch(value=Settings.dark_mode, on_change=toggle_mode)
                         ),
                     ]),
                     setting_group(title='Folders', settings=[
@@ -58,6 +63,13 @@ def build() -> ft.Control:
                             title='Music Folder',
                             leading=ft.Icons.MUSIC_NOTE,
                             trailing=mf_path
+                        )
+                    ]),
+                    setting_group(title='About', settings=[
+                        ft.ListTile(
+                            title='MaterialMusic',
+                            subtitle='Version 1.0',
+                            leading=ft.Icons.INFO_OUTLINE,
                         )
                     ])
                 ]

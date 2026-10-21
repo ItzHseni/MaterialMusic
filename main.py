@@ -1,5 +1,6 @@
 import flet as ft
 from pages import home, settings, tag
+from utils.appdata import Settings
 
 # dont put pages after settings 
 # settings gotta be the last index cuz ion wanna hardcode the index since it might get annoying to change later
@@ -13,9 +14,25 @@ SETTINGS_INDEX = len(pages) - 1
 
 def main(page: ft.Page):
 
+    if Settings.dark_mode:
+        theme_mode = ft.ThemeMode.DARK
+    else:
+        theme_mode = ft.ThemeMode.LIGHT
+
+    page.theme_mode = theme_mode
+
+    async def on_window_event(event: ft.WindowEvent):
+        print('hi')
+        if event.type == ft.WindowEventType.CLOSE:
+            Settings.save()
+            await page.window.destroy()
+
+    page.window.prevent_close = True
+    page.window.on_event = on_window_event
+
     builds = [p.build() for p in pages]
 
-    body = ft.Container(content=builds[SETTINGS_INDEX], expand=True)
+    body = ft.Container(content=builds[1], expand=True)
 
     def change_page(event: ft.ControlEvent):
         selected = event.control.selected_index
