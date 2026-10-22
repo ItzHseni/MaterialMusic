@@ -21,12 +21,12 @@ def build() -> ft.Control:
                             spacing=2,
                             controls=[
                                 ft.Text(
-                                    value=file.name,
+                                    value=file.title if file.title else file.file_path.name,
                                     size=16,
                                     weight=ft.FontWeight.BOLD
                                 ),
                                 ft.Text(
-                                    value='Unknown Artist',
+                                    value=file.artist if file.artist else 'Unkown Artist',
                                     color=ft.Colors.ON_SURFACE_VARIANT,
                                     size=13
                                 )

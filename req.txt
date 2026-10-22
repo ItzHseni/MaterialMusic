@@ -2,3 +2,4 @@ musicbrainzngs
 requests
 flet[all]
 platformdirs
+tinytag
