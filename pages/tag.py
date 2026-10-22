@@ -10,26 +10,38 @@ def build() -> ft.Control:
     for file in MusicFiles.files:
         cards.append(
             ft.Container(
-                ink= True,
+                ink=True,
                 on_click=on_click,
-                border_radius=15,
+                border_radius=16,
                 padding=16,
                 bgcolor=ft.Colors.SURFACE_CONTAINER,
-                content=ft.Column(
-                    spacing=5,
+                content=ft.Row(
                     controls=[
-                        ft.Text(file.name),
-                        ft.Text('Unkown Artist')
+                        ft.Column(
+                            spacing=2,
+                            controls=[
+                                ft.Text(
+                                    value=file.name,
+                                    size=16,
+                                    weight=ft.FontWeight.BOLD
+                                ),
+                                ft.Text(
+                                    value='Unknown Artist',
+                                    color=ft.Colors.ON_SURFACE_VARIANT,
+                                    size=13
+                                )
+                            ]
+                        )
                     ]
                 )
             )
         )
 
     return ft.Container(
-        padding=40,
+        padding=24,
         content=ft.ListView(
             controls=cards,
-            spacing=5,
+            spacing=8,
             expand=True
         )
     )
