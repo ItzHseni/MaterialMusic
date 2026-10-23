@@ -19,7 +19,7 @@ class MusicClass():
         files = []
         for file in Path(Settings.music_dir).rglob('*'):
             if file.suffix in file_extentions:
-                tag = TinyTag.get(file)
+                tag = TinyTag.get(file, image=True)
                 files.append(MusicFile(
                     title=tag.title,
                     artist=tag.artist,
