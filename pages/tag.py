@@ -1,5 +1,6 @@
 import flet as ft
 from utils.music import MusicFiles, MusicFile
+from utils.metadata import get_recordings
 
 def cover_art(file: MusicFile):
     if file.cover_art:
@@ -27,24 +28,71 @@ def build() -> ft.Control:
         return
     cards = []
 
+    def close_popup(event: ft.Event):
+        event.page.pop_dialog()
+
     def on_click(event: ft.Event[ft.Container]):
         file: MusicFile = event.control.data
         file_title = file.title if file.title else file.file_path.stem
         file_artist = file.artist if file.artist else ''
         
-        title = ft.TextField(label='Song Title', value=file_title)
-        artist = ft.TextField(label='Artist Name', value=file_artist)
+        title_field = ft.TextField(label='Song Title', value=file_title)
+        artist_field = ft.TextField(label='Artist Name', value=file_artist)
+        song_row = ft.Row(controls=[], spacing=20, scroll=ft.ScrollMode.AUTO, height=152, vertical_alignment=ft.CrossAxisAlignment.START)
+
+        def on_rclick(event: ft.Event[ft.Container]):
+            rec = event.control.data
+
+            title_field.value = rec['title']
+            artist_field.value = ' ,'.join(rec['artists'])
+
+        def search_recordings():
+            song_title = title_field.value
+            song_artist = artist_field.value
+
+            recordings = get_recordings(song=song_title, artist=song_artist)
+
+            song_row.controls.clear()
+
+            for recording in recordings:
+                song_row.controls.append(
+                    ft.Container(
+                        ink=True,
+                        on_click=on_rclick,
+                        bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
+                        width=128,
+                        height=128,
+                        border_radius=20,
+                        padding=15,
+                        content=ft.Column(
+                            controls=[
+                                ft.Text(value=recording['title'], overflow=ft.TextOverflow.ELLIPSIS),
+                                ft.Text(value=' ,'.join(recording['artists']), overflow=ft.TextOverflow.ELLIPSIS)
+                            ]
+                        ),
+                        data=recording
+                        
+                    )
+                )
 
         event.page.show_dialog(
             ft.AlertDialog(
                 modal=True,
                 title=ft.Text("Edit tags"),
+                bgcolor=ft.Colors.SURFACE_CONTAINER,
                 content=ft.Column(
-                    controls=[title, artist],
+                    controls=[
+                        title_field,
+                        artist_field,
+                        ft.FilledButton(icon=ft.Icons.SEARCH, on_click=search_recordings, content='Search'),
+                        ft.Column(height=12),
+                        song_row
+                    ],
+                    horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                     width=1000
                 ),
                 actions=[
-                    ft.TextButton("Cancel", on_click=dum()),
+                    ft.TextButton("Cancel", on_click=close_popup),
                     ft.FilledButton("Save", on_click=dum()),
                 ],
             )

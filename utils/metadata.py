@@ -12,25 +12,26 @@ def get_artists(response: dict) -> list[str]:
 
     return artists
 
-def get_recordings(song: str, artist: str) -> list[dict]:
-    responses = brainz.search_recordings(query=song, limit=3, artistname=artist)
+def get_recordings(song: str, artist: str = '') -> list[dict]:
+    responses = brainz.search_recordings(query=song, limit=10, artistname=artist)
 
     filtered = []
     for response in responses['recording-list']:
 
         item = {}
         item['track_id'] = response['id']
-        item['release_id'] = response['release-list']['id']
+        item['release_id'] = response['release-list'][0]['id']
         item['title'] = response['title']
         item['artists'] = get_artists(response)
         filtered.append(item)
 
     return filtered
 
-def get_recording(song: dict):
+def get_recording(song: dict) -> dict:
 
     response = brainz.get_recording_by_id(id=song['track_id'], includes=['tags'])
-    tag_list = response['recording']['tag-list']
+    recording: dict = response['recording']
+    tag_list = recording.get('tag-list', [])
 
 
     tags = []
@@ -46,10 +47,3 @@ def get_recording(song: dict):
 
 def write_recording(file, data: dict) -> bool:
     return
-
-# Test stuffs
-song = {}
-song['track_id'] = '839a1658-53f7-4b2a-86d9-3e52d929d5a2'
-song['release_id'] = '76df3287-6cda-33eb-8e9a-044b5e15ffdd'
-
-print(get_recording(song))
