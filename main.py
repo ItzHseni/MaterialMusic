@@ -30,7 +30,7 @@ def main(page: ft.Page):
     page.window.prevent_close = True
     page.window.on_event = on_window_event
 
-    builds = [p.build() for p in pages]
+    builds = [p.build(page) for p in pages]
 
     body = ft.Container(content=builds[1], expand=True)
 

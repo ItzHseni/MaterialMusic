@@ -1,5 +1,6 @@
 import flet as ft
 from utils.appdata import Settings
+from utils.music import MusicFiles
 
 def setting_group(title: str, settings: list[ft.ListTile]) -> ft.Control:
     return ft.Column(
@@ -14,13 +15,15 @@ def setting_group(title: str, settings: list[ft.ListTile]) -> ft.Control:
         ]
     )
 
-def build() -> ft.Control:
+def build(page: ft.Page) -> ft.Control:
 
     async def pick_mf():
         path = await ft.FilePicker().get_directory_path()
         if path:
             mf_path.content = path
             Settings.music_dir = path
+            MusicFiles.load()
+            page.pubsub.send_all_on_topic('mfiles_changed', None)
 
     def toggle_mode(event: ft.Event[ft.Switch]):
         page: ft.Page = event.control.page
