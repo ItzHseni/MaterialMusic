@@ -70,6 +70,8 @@ def build(page: ft.Page) -> ft.Control:
 
     def on_click(event: ft.Event[ft.Container]):
 
+        music_list_card = event.control
+
         def on_field_change(event: ft.Event[ft.TextField]):
 
             value = event.control.value
@@ -110,6 +112,9 @@ def build(page: ft.Page) -> ft.Control:
         def save_metadata():
             write_recording(file=file)
             MusicFiles.load()
+            index = music_list.controls.index(music_list_card)
+            music_list.controls[index] = music_card(file=file, on_click=on_click)
+            music_list.update()
             event.page.pop_dialog()
 
         def on_rclick(event: ft.Event[ft.Container]):
@@ -162,14 +167,20 @@ def build(page: ft.Page) -> ft.Control:
                             
                         )
                     )
+
+                    if cancelled:
+                        break
                     song_row.update()
 
-            except Exception as err:
-                print(err)
+            except RuntimeError:
+                pass
             finally:
-                if not cancelled:
-                    event.control.disabled = False
-                    event.control.update()
+                try:
+                    if not cancelled:
+                        event.control.disabled = False
+                        event.control.update()
+                except RuntimeError:
+                    pass
 
         event.page.show_dialog(
             ft.AlertDialog(
