@@ -1,12 +1,15 @@
 import flet as ft
 from utils.music import MusicFiles, MusicFile
-from utils.metadata import get_recordings
+from utils.metadata import get_recordings, get_recording, write_recording
+import asyncio
+from tinytag import Image
 
 def cover_art(file: MusicFile):
-    if file.cover_art:
+
+    if file.cover_bytes:
         return ft.Container(
             content=ft.Image(
-                src=file.cover_art.data,
+                src=file.cover_bytes,
                 width=64,
                 height=64,
                 border_radius=10,
@@ -23,6 +26,7 @@ def cover_art(file: MusicFile):
     )
 
 def music_card(file: MusicFile, on_click):
+
     return (
         ft.Container(
         ink=True,
@@ -39,7 +43,7 @@ def music_card(file: MusicFile, on_click):
                     spacing=2,
                     controls=[
                         ft.Text(
-                            value=file.title if file.title else file.file_path.name,
+                            value=file.title if file.title else file.file_path.stem,
                             size=16,
                             weight=ft.FontWeight.BOLD
                         ),
@@ -59,59 +63,113 @@ def build(page: ft.Page) -> ft.Control:
 
     def dum():
         return
-    
-
-
-    def close_popup(event: ft.Event):
-        event.page.pop_dialog()
 
     def mfiles_changed(topic, message):
         x = [music_card(file=file, on_click=on_click) for file in MusicFiles.files]
         music_list.controls = x
 
     def on_click(event: ft.Event[ft.Container]):
+
+        def on_field_change(event: ft.Event[ft.TextField]):
+
+            value = event.control.value
+
+            if event.control.label == 'Song Title':
+                file.title = value
+                card_container.content.content.controls[1].controls[0].value = file.title if file.title else file.file_path.stem
+
+            elif event.control.label == 'Artist Name':
+                file.artist = value
+                card_container.content.content.controls[1].controls[1].value = file.artist if file.artist else 'Unknown Artist'
+
+            elif event.control.label == 'Tags':
+                file.genre = value
+            elif event.control.label == 'Release Date':
+                file.release_date = value
+
+        cancelled = False
         file: MusicFile = event.control.data
         file_title = file.title if file.title else file.file_path.stem
-        file_artist = file.artist if file.artist else ''
-        
-        title_field = ft.TextField(label='Song Title', value=file_title)
-        artist_field = ft.TextField(label='Artist Name', value=file_artist)
+        file_artist = file.artist if file.artist else None
+
+        card_container = ft.Container(content=music_card(file=file, on_click=dum))
+        title_field = ft.TextField(label='Song Title', value=file_title, expand=True, height=1, on_change=on_field_change)
+        artist_field = ft.TextField(label='Artist Name', value=file_artist, hint_text='Albert Einstien', expand=True, height=1, on_change=on_field_change)
+        tags_field = ft.TextField(label='Tags', value=None, hint_text='Pop', expand=True, on_change=on_field_change)
+        album_field = ft.TextField(label='Album Name', value=None, hint_text='Evil Noises', expand=True, on_change=on_field_change)
+        album_artist = ft.TextField(label='Album Artist', value=None, hint_text='Robert Alan', expand=True, on_change=on_field_change)
+        release_date = ft.TextField(label='Release Date', value=None, hint_text='6/7/2067', expand=True, on_change=on_field_change)
+
         song_row = ft.Row(controls=[], spacing=20, scroll=ft.ScrollMode.AUTO, height=152, vertical_alignment=ft.CrossAxisAlignment.START)
+            
+        def close_popup(event: ft.Event):
+            nonlocal cancelled
+            cancelled = True 
+            event.page.pop_dialog()
+
+        def save_metadata():
+            write_recording(file=file)
+            MusicFiles.load()
+            event.page.pop_dialog()
 
         def on_rclick(event: ft.Event[ft.Container]):
             rec = event.control.data
+            
+            file.title = title_field.value = rec['title']
+            file.artist = artist_field.value = ', '.join(rec['artists'])
+            file.genre = tags_field.value = ', '.join(rec['tags'])
+            file.release_date = release_date.value = rec['release_date']
+            file.cover_bytes = rec['cover_bytes']
 
-            title_field.value = rec['title']
-            artist_field.value = ' ,'.join(rec['artists'])
+            card_container.content = music_card(file=file, on_click=dum)
 
-        def search_recordings():
+        async def search_recordings(event: ft.Event[ft.FilledButton]):
+            nonlocal cancelled
+            cancelled = False
+
+            event.control.disabled = True
+            event.control.update()
             song_title = title_field.value
             song_artist = artist_field.value
 
-            recordings = get_recordings(song=song_title, artist=song_artist)
+            try:
+                recordings = await asyncio.to_thread(get_recordings, song=song_title, artist=song_artist)
 
-            song_row.controls.clear()
+                song_row.controls.clear()
 
-            for recording in recordings:
-                song_row.controls.append(
-                    ft.Container(
-                        ink=True,
-                        on_click=on_rclick,
-                        bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
-                        width=128,
-                        height=128,
-                        border_radius=20,
-                        padding=15,
-                        content=ft.Column(
-                            controls=[
-                                ft.Text(value=recording['title'], overflow=ft.TextOverflow.ELLIPSIS),
-                                ft.Text(value=' ,'.join(recording['artists']), overflow=ft.TextOverflow.ELLIPSIS)
-                            ]
-                        ),
-                        data=recording
-                        
+                for recording in recordings:
+
+                    if cancelled:
+                        break
+
+                    all_info = await asyncio.to_thread(get_recording, song=recording)
+                    song_row.controls.append(
+                        ft.Container(
+                            ink=True,
+                            on_click=on_rclick,
+                            bgcolor=ft.Colors.SURFACE_CONTAINER_HIGH,
+                            width=128,
+                            height=128,
+                            border_radius=20,
+                            padding=15,
+                            content=ft.Column(
+                                controls=[
+                                    ft.Text(value=recording['title'], overflow=ft.TextOverflow.ELLIPSIS),
+                                    ft.Text(value=' ,'.join(recording['artists']), overflow=ft.TextOverflow.ELLIPSIS)
+                                ]
+                            ),
+                            data=all_info
+                            
+                        )
                     )
-                )
+                    song_row.update()
+
+            except Exception as err:
+                print(err)
+            finally:
+                if not cancelled:
+                    event.control.disabled = False
+                    event.control.update()
 
         event.page.show_dialog(
             ft.AlertDialog(
@@ -120,18 +178,20 @@ def build(page: ft.Page) -> ft.Control:
                 bgcolor=ft.Colors.SURFACE_CONTAINER,
                 content=ft.Column(
                     controls=[
-                        title_field,
-                        artist_field,
+                        ft.Column(controls=[title_field, artist_field], height=150),
+                        ft.Row(controls=[album_field, album_artist], spacing=10),
+                        ft.Row(controls=[release_date, tags_field], spacing=10),
                         ft.FilledButton(icon=ft.Icons.SEARCH, on_click=search_recordings, content='Search'),
                         ft.Column(height=12),
-                        song_row
+                        song_row,
+                        card_container
                     ],
                     horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                     width=1000
                 ),
                 actions=[
                     ft.TextButton("Cancel", on_click=close_popup),
-                    ft.FilledButton("Save", on_click=dum()),
+                    ft.FilledButton("Save", on_click=save_metadata),
                 ],
             )
         )

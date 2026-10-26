@@ -3,3 +3,4 @@ requests
 flet[all]
 platformdirs
 tinytag
+mutagen
