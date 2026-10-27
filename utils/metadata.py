@@ -21,16 +21,19 @@ def get_recordings(song: str, artist: str = '') -> list[dict]:
     responses = brainz.search_recordings(query=song, limit=10, artistname=artist)
 
     filtered = []
-    for response in responses['recording-list']:
+    try:
+        for response in responses['recording-list']:
 
-        item = {}
-        item['track_id'] = response['id']
-        item['release_id'] = response['release-list'][0]['id']
-        item['title'] = response['title']
-        item['artists'] = get_artists(response)
-        filtered.append(item)
+            item = {}
+            item['track_id'] = response['id']
+            item['release_id'] = response['release-list'][0]['id']
+            item['title'] = response['title']
+            item['artists'] = get_artists(response)
+            filtered.append(item)
 
-    return filtered
+        return filtered
+    except KeyError:
+        return []
 
 def get_recording(song: dict) -> dict:
 

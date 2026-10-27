@@ -2,7 +2,7 @@ from pathlib import Path
 from utils.appdata import Settings
 from tinytag import TinyTag, Image
 
-file_extentions = ['.mp3']
+file_extentions = ['.mp3', '.m4a']
 class MusicFile():
     def __init__(self, title: str = None, artist: str = 'Unknown Artist', genre: str = None, cover_art: Image = None, release_date: str = None, file_path: Path = None):
         self.title: str = title
