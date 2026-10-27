@@ -1,6 +1,7 @@
 import flet as ft
 from utils.appdata import Settings
 from utils.music import MusicFiles
+from utils.theme import MaterialYou
 
 def setting_group(title: str, settings: list[ft.ListTile]) -> ft.Control:
     return ft.Column(
@@ -38,6 +39,10 @@ def build(page: ft.Page) -> ft.Control:
 
         page.update()
 
+    def refresh_theme():
+        page.theme = MaterialYou.load().theme
+        page.update()
+
     mf_path = ft.TextButton(icon=ft.Icons.FOLDER, content=Settings.music_dir, on_click=pick_mf)
 
     return ft.Container(
@@ -59,6 +64,11 @@ def build(page: ft.Page) -> ft.Control:
                             title='Dark Mode',
                             leading=ft.Icons.DARK_MODE,
                             trailing=ft.Switch(value=Settings.dark_mode, on_change=toggle_mode)
+                        ),
+                        ft.ListTile(
+                            title='Material Theme',
+                            leading=ft.Icons.COLOR_LENS,
+                            trailing=ft.IconButton(icon=ft.Icon(ft.Icons.REFRESH),on_click=refresh_theme)
                         ),
                     ]),
                     setting_group(title='Folders', settings=[

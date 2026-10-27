@@ -1,6 +1,7 @@
 import flet as ft
 from pages import home, settings, tag
 from utils.appdata import Settings
+from utils.theme import MaterialYou
 
 # dont put pages after settings 
 # settings gotta be the last index cuz ion wanna hardcode the index since it might get annoying to change later
@@ -20,6 +21,9 @@ def main(page: ft.Page):
         theme_mode = ft.ThemeMode.LIGHT
 
     page.theme_mode = theme_mode
+
+    page.theme = MaterialYou.theme
+    page.bgcolor = ft.Colors.SURFACE
 
     async def on_window_event(event: ft.WindowEvent):
         print('hi')
