@@ -72,7 +72,6 @@ class SettingsClass():
         self.dark_mode: bool = False
         self.use_wallpaper: bool = True
         self.use_default_theme: bool = False
-        self.use_custom_theme: bool = True
 
     def load(self):
 
