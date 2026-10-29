@@ -16,9 +16,11 @@ class MaterialTheme():
                 data = json.loads(LINUX_COLOUR_FILE.read_text())
         else:
             if Settings.use_default_theme:
-                data = Theme.default
+                Theme.theme = Theme.default
             else:
-                data = Theme.theme
+                Theme.theme = Theme.user_theme
+
+            data = Theme.theme
             
         theme = ft.Theme(
             use_material3=True,

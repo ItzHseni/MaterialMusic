@@ -119,6 +119,10 @@ def build(page: ft.Page) -> ft.Control:
         def save_colour():
             Theme.theme[event.control.data] = new_colour_container.bgcolor
             event.control.bgcolor = Theme.theme[event.control.data]
+
+            page.theme = MaterialYou.load().theme
+            page.update()
+            
             event.page.pop_dialog()
 
         event.page.show_dialog(
@@ -152,10 +156,6 @@ def build(page: ft.Page) -> ft.Control:
                 ],
             )
         )
-    
-    def refresh_theme():
-        page.theme = MaterialYou.load().theme
-        page.update()
 
     color_controls = []
     for key in GROUPS.keys():
