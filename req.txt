@@ -4,3 +4,4 @@ flet[all]
 platformdirs
 tinytag
 mutagen
+flet-color-pickers

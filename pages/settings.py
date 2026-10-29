@@ -31,11 +31,10 @@ def build(page: ft.Page) -> ft.Control:
 
         if event.control.value:
             page.theme_mode = ft.ThemeMode.DARK
-            Settings.dark_mode = True
-
         else:
             page.theme_mode = ft.ThemeMode.LIGHT
-            Settings.dark_mode = False
+
+        Settings.dark_mode = False
 
         page.update()
 
@@ -43,7 +42,37 @@ def build(page: ft.Page) -> ft.Control:
         page.theme = MaterialYou.load().theme
         page.update()
 
+    def use_wallpaper(event: ft.Event[ft.Switch]):
+        Settings.use_wallpaper = event.control.value
+        default_col_tile.disabled = event.control.value
+        edit_col_tile.disabled = default_col_tile.disabled or default_col_tile.data
+        refresh_theme()
+
+    def default_colours(event: ft.Event[ft.Switch]):
+        Settings.use_default_theme = event.control.value
+        edit_col_tile.disabled = event.control.value or default_col_tile.disabled
+        refresh_theme()
+
+    def edit_colours():
+        page.pubsub.send_all_on_topic('edit_colours', None)
+        return
+
     mf_path = ft.TextButton(icon=ft.Icons.FOLDER, content=Settings.music_dir, on_click=pick_mf)
+
+    default_col_tile = ft.ListTile(
+        title='Default Colours',
+        leading=ft.Icons.FACTORY,
+        trailing=ft.Switch(value=Settings.use_default_theme, on_change=default_colours),
+        disabled=Settings.use_wallpaper
+    )
+
+    edit_col_tile = ft.ListTile(
+        title='Customer Colours',
+        leading=ft.Icons.EDIT,
+        trailing=ft.FilledButton(content='Edit', on_click=edit_colours),
+        disabled=Settings.use_default_theme
+    )
+
 
     return ft.Container(
         padding=16,
@@ -70,6 +99,13 @@ def build(page: ft.Page) -> ft.Control:
                             leading=ft.Icons.COLOR_LENS,
                             trailing=ft.IconButton(icon=ft.Icon(ft.Icons.REFRESH),on_click=refresh_theme)
                         ),
+                        ft.ListTile(
+                            title='Wallpaper Colours',
+                            leading=ft.Icons.WALLPAPER,
+                            trailing=ft.Switch(value=Settings.use_wallpaper, on_change=use_wallpaper)
+                        ),
+                        default_col_tile,
+                        edit_col_tile
                     ]),
                     setting_group(title='Folders', settings=[
                         ft.ListTile(

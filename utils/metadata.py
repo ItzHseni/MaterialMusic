@@ -46,13 +46,12 @@ def get_recording(song: dict) -> dict:
     for tag in tag_list:
         tags.append(tag['name'])
 
-    dates = [rec['date'] for rec in recording.get('release-list', [])]
+    dates = [rec.get('date', '') for rec in recording.get('release-list', [])]
     release_date = min(dates)
 
     cover_bytes = requests.get(f'https://coverartarchive.org/release/{song['release_id']}/front-500')
 
     song['tags'] = tags
-    print(tags)
     song['release_date'] = release_date
     song['cover_bytes'] = cover_bytes.content if cover_bytes.ok else None
 

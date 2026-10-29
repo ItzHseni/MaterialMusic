@@ -1,13 +1,15 @@
 import flet as ft
-from pages import home, settings, tag
-from utils.appdata import Settings
+from pages import home, settings, tag, colors
+from utils.appdata import Settings, Theme
 from utils.theme import MaterialYou
 
 # dont put pages after settings 
+# and colors gotta be befofre settings
 # settings gotta be the last index cuz ion wanna hardcode the index since it might get annoying to change later
 # holy long comment
 pages = [home,
          tag,
+         colors,
          settings
          ]
 
@@ -26,9 +28,9 @@ def main(page: ft.Page):
     page.bgcolor = ft.Colors.SURFACE
 
     async def on_window_event(event: ft.WindowEvent):
-        print('hi')
         if event.type == ft.WindowEventType.CLOSE:
             Settings.save()
+            Theme.save()
             await page.window.destroy()
 
     page.window.prevent_close = True
@@ -48,6 +50,10 @@ def main(page: ft.Page):
 
         page.update()
 
+    def edit_colors(topic, message):
+        body.content = builds[len(builds)-2]
+        page.update()
+
     def open_settings():
         rail.selected_index = None
         settings_button.selected = True
@@ -55,12 +61,14 @@ def main(page: ft.Page):
         body.content = builds[SETTINGS_INDEX]
         page.update()
 
+    page.pubsub.subscribe_topic('edit_colours', edit_colors)
+
     settings_button = ft.IconButton(icon=ft.Icons.SETTINGS, on_click=open_settings, selected_icon_color=ft.Colors.SECONDARY)
 
     rail = ft.NavigationRail(
         destinations=[
             ft.NavigationRailDestination(icon=ft.Icons.HOME, label='Home'),
-            ft.NavigationRailDestination(icon=ft.Icons.TAG, label='Tags')
+            ft.NavigationRailDestination(icon=ft.Icons.TAG, label='Tags'),
         ],
         selected_index=0,
         label_type=ft.NavigationRailLabelType.ALL,
