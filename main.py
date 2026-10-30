@@ -1,5 +1,5 @@
 import flet as ft
-from pages import home, settings, tag, colors
+from pages import music, settings, tag, colors
 from utils.appdata import Settings, Theme
 from utils.theme import MaterialYou
 
@@ -7,7 +7,7 @@ from utils.theme import MaterialYou
 # and colors gotta be befofre settings
 # settings gotta be the last index cuz ion wanna hardcode the index since it might get annoying to change later
 # holy long comment
-pages = [home,
+pages = [music,
          tag,
          colors,
          settings
@@ -38,7 +38,7 @@ def main(page: ft.Page):
 
     builds = [p.build(page) for p in pages]
 
-    body = ft.Container(content=builds[1], expand=True)
+    body = ft.Container(content=builds[0], expand=True)
 
     def change_page(event: ft.ControlEvent):
         selected = event.control.selected_index
@@ -67,7 +67,7 @@ def main(page: ft.Page):
 
     rail = ft.NavigationRail(
         destinations=[
-            ft.NavigationRailDestination(icon=ft.Icons.HOME, label='Home'),
+            ft.NavigationRailDestination(icon=ft.Icons.MUSIC_NOTE, label='Music'),
             ft.NavigationRailDestination(icon=ft.Icons.TAG, label='Tags'),
         ],
         selected_index=0,

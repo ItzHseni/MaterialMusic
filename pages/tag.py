@@ -53,7 +53,9 @@ def music_card(file: MusicFile, on_click):
                             size=13
                         )
                     ]
-                )
+                ),
+                ft.Container(expand=True),
+                ft.Icon(ft.Icons.EDIT)
             ]
         )
     )

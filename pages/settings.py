@@ -42,6 +42,10 @@ def build(page: ft.Page) -> ft.Control:
         page.theme = MaterialYou.load().theme
         page.update()
 
+    def refresh_files():
+        MusicFiles.load()
+        page.pubsub.send_all_on_topic('mfiles_changed', None)
+
     def use_wallpaper(event: ft.Event[ft.Switch]):
         Settings.use_wallpaper = event.control.value
         default_col_tile.disabled = event.control.value
@@ -71,7 +75,7 @@ def build(page: ft.Page) -> ft.Control:
         title='Customer Colours',
         leading=ft.Icons.EDIT,
         trailing=ft.FilledButton(content='Edit', on_click=edit_colours),
-        disabled=Settings.use_default_theme
+        disabled=Settings.use_default_theme or Settings.use_wallpaper
     )
 
 
@@ -111,9 +115,14 @@ def build(page: ft.Page) -> ft.Control:
                     setting_group(title='Folders', settings=[
                         ft.ListTile(
                             title='Music Folder',
-                            leading=ft.Icons.MUSIC_NOTE,
+                            leading=ft.Icons.FOLDER,
                             trailing=mf_path
-                        )
+                        ),
+                        ft.ListTile(
+                            title='Refresh Files',
+                            leading=ft.Icons.MUSIC_NOTE,
+                            trailing=ft.IconButton(icon=ft.Icon(ft.Icons.REFRESH),on_click=refresh_files)
+                        ),
                     ]),
                     setting_group(title='About', settings=[
                         ft.ListTile(
