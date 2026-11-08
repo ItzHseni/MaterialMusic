@@ -5,4 +5,5 @@ platformdirs
 tinytag
 mutagen
 flet-color-pickers
-python-vlc
+mpris-server
+mpv

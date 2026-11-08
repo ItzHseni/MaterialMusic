@@ -1,5 +1,5 @@
 from pathlib import Path
-from platformdirs import user_config_dir
+from platformdirs import user_config_dir, user_cache_dir
 import json
 import flet as ft
 
@@ -7,8 +7,8 @@ APP = 'MaterialMusic'
 
 config_dir = Path(user_config_dir(appname=APP))
 
+
 config_dir.mkdir(exist_ok=True, parents=True)
-print(config_dir)
 config_file = config_dir / 'config.json'
 theme_file = config_dir / 'current_theme.json'
 user_theme_file = config_dir / 'user_theme.json'

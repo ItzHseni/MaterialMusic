@@ -48,9 +48,11 @@ def build(page: ft.Page) -> ft.Control:
 
     def use_wallpaper(event: ft.Event[ft.Switch]):
         Settings.use_wallpaper = event.control.value
+        Settings.use_default_theme = not event.control.value
+        default_col_tile.trailing.value = Settings.use_default_theme
         default_col_tile.disabled = event.control.value
-        default_col_tile.trailing.value = not event.control.value
-        edit_col_tile.disabled = default_col_tile.disabled or default_col_tile.trailing.value
+        edit_col_tile.disabled = event.control.value or Settings.use_default_theme
+
         refresh_theme()
 
     def default_colours(event: ft.Event[ft.Switch]):
